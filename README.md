@@ -18,7 +18,7 @@ colab
 # 按功能部分讲解
 
 ### 下载BGS scanned records
-> `downloader.ipynb`
+> `downloader.ipynb` or `downloader.py`
 * 根据url下载图片
 * 获取某个BGS id下所有的图片(一个BGS id可能包含多个图片)
 * 根据url获取某页下所有的图片

@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+import copy
+import watershed_line_segment
 
-
-def del_vertical_line(image):
+def rm_vertical_line(image):
     """
     删除竖直线
     :params
@@ -24,7 +24,7 @@ def del_vertical_line(image):
     return image
 
 
-def del_horizontal_line(image):
+def rm_horizontal_line(image):
     """
     删除水平线
     :return:
@@ -106,19 +106,31 @@ def line_seg_large(original_img, img_without_noise):
     """
     对于大图像的行分割
     :param
+            original_img: 原图
+            img_without_noise: 经过去噪点处理的灰色二值图
     :return:
     Modify:
-        28.06.2020 - 重命名
+        01.07.2020
     """
     original_cpy1 = original_img.copy()
     original_cpy2 = original_img.copy()
 
-    # gray = cv2.cvtColor(none_noise_img, cv2.COLOR_BGR2GRAY)
     binary = cv2.adaptiveThreshold(~img_without_noise, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 15, -80)
-    kernel = np.ones((2, 5), np.uint8)  # 1,5
-    img_erode = cv2.erode(binary, kernel, iterations=1)  # 2
-    kernel = np.ones((10, 150), np.uint8)  # 10,80
+    # 先腐蚀后膨胀
+    # kernel = np.ones((5, 2), np.uint8)  # 1,5
+    # img_erode = cv2.erode(binary, kernel, iterations=1)  # 2
+    # kernel = np.ones((3, 100), np.uint8)  # 10,80
+    # img_dilation = cv2.dilate(img_erode, kernel, iterations=1)
+    # cv2.imshow('img_dilation', img_dilation)
+
+    # 膨胀-腐蚀-膨胀
+    kernel = np.ones((1, 200), np.uint8) #1, 200
+    img_dilation = cv2.dilate(binary, kernel, iterations=1)
+    kernel = np.ones((5, 300), np.uint8) #5, 300
+    img_erode = cv2.erode(img_dilation, kernel, iterations=1)
+    kernel = np.ones((1, 400), np.uint8) #1, 400
     img_dilation = cv2.dilate(img_erode, kernel, iterations=1)
+    cv2.imshow('img_dilation', img_dilation)
 
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
@@ -127,36 +139,41 @@ def line_seg_large(original_img, img_without_noise):
         x, y, w, h = cv2.boundingRect(ctr)
         # 限定条件
         if area < 450:
-            continue
-        if h < 10 or w < 10:
             pass
-            # continue
-        cv2.rectangle(original_img, (x, y), (x + w, y + h), (0, 0, 0), 1)
-        cv2.rectangle(original_cpy1, (x, y), (x + w, y + h), (0, 0, 0), -1) # 填充
+            continue
+        if h < 7 or w < 10: # 8
+            pass
+            continue
+        cv2.rectangle(original_img, (x, y), (x + w, y + h), (0, 0, 255), 1)
+        # 填充
+        cv2.rectangle(original_cpy1, (x, y), (x + w, y + h), (0, 0, 0), -1)
         # 三元表达式防止越界
-        y1 = (y - 10) if (y - 10) > 0 else 0
-        y2 = (y + h + 15) if (y + h + 15) < original_cpy1.shape[0] else original_cpy1.shape[0]
-        # roi - 竖直方向上下多提取10,15个像素
+        y_minus, y_plus = 15, 15 # 竖直方向上下各多提取10, 15个像素
+        y1 = (y - y_minus) if (y - y_minus) > 0 else 0
+        y2 = (y + h + y_plus) if (y + h + y_plus) < original_cpy1.shape[0] else original_cpy1.shape[0]
         roi = original_cpy1[y1:y2, x:x + w]
-        cv2.imshow('roi', original_img[y1:y2, x:x + w])
-        connectedComponent(roi)
-        # 重新赋值以免之前绘制的矩形影响识别
-        original_cpy1 = original_cpy2
-
-    cv2.imshow('img_dilation', img_dilation)
-    cv2.imshow('original_img', original_img)
+        # cv2.imshow('roi', original_img[y1:y2, x:x + w])
+        roi_coordinate = (y_minus, w, h)
+        contours_coordinate = connectedComponent(roi, roi_coordinate)
+        # 深拷贝以免填充的矩形影响识别
+        original_cpy1 = copy.deepcopy(original_cpy2)
+    cv2.imshow('original_img with contours', original_img)
     cv2.waitKey(0)
     return original_img
 
 
-def connectedComponent(roi):
+def connectedComponent(roi, roi_coordinate):
     """
     寻找roi连接区域
-    :param roi
-    :return:
+    :param roi:
+           roi_coordinate: 向上多提取的像素数, 宽, 高
+    :return contours_coordinate_list: 每个connected component的轮廓坐标
     Modify:
-        30.06.2020
+        01.07.2020
     """
+    # 读取坐标
+    x, y, w, h = 0, roi_coordinate[0], roi_coordinate[1], roi_coordinate[2]
+
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
     binary = cv2.threshold(~gray, 127, 255, cv2.THRESH_BINARY)[1]
     ret, labels = cv2.connectedComponents(binary)
@@ -169,9 +186,9 @@ def connectedComponent(roi):
     # set bg label to black
     labeled_img[label_hue == 0] = 0
     # show image
-    cv2.imshow('labeled.png', labeled_img)
+    # cv2.imshow('labeled.png', labeled_img)
 
-    # 找到非黑像素数最多的connected component
+    # 找到白色像素数最多的connected component
     max_white_pixel = 0
     for label in range(1, ret):
         mask = np.array(labels, dtype=np.uint8)
@@ -182,8 +199,39 @@ def connectedComponent(roi):
             max_pixel_index = label  # 下标
     max_mask = np.array(labels, dtype=np.uint8)
     max_mask[labels == max_pixel_index] = 255
-    cv2.imshow('max_mask', ~max_mask)
-    cv2.waitKey(0)
+    # convert to RGB
+    max_mask = cv2.cvtColor(max_mask, cv2.COLOR_GRAY2RGB)
+    # cv2.imshow('max_mask', max_mask)
+    # cv2.waitKey(0)
+
+    # 主体轮廓填充
+    cv2.rectangle(max_mask, (x, y), (x + w, y + h), (0, 0, 0), -1)
+    # cv2.imshow('dark fill', max_mask)
+    # cv2.waitKey(0)
+
+    # 转换灰度二值
+    gray_mask = cv2.cvtColor(max_mask, cv2.COLOR_BGR2GRAY)
+    binary_mask = cv2.threshold(gray_mask, 127, 255, cv2.THRESH_BINARY)[1]
+    kernel = np.ones((2, 2), np.uint8)
+    img_dilation = cv2.dilate(binary_mask, kernel, iterations=1) # 膨胀
+
+    # 轮廓提取
+    ctrs, hier = cv2.findContours(img_dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+    contours_coordinate_list = []
+    for i, ctr in enumerate(sorted_ctrs):
+        x_component, y_component, w_component, h_component = cv2.boundingRect(ctr)
+        contours_coordinate_list.append([x_component, y_component, w_component, h_component])
+        cv2.rectangle(roi, (x_component, y_component), (x_component + w_component, y_component + h_component), (0, 255, 0), 1)
+    # cv2.imshow('component contours', roi)
+    # cv2.waitKey(0)
+
+    return contours_coordinate_list
+
+
+
+
+
 
 
 # 读取文件名
@@ -205,35 +253,41 @@ for img_name in img_names:
     # 保存图片
     # cv2.imwrite('/Users/zzmacbookpro/Desktop/multipletext/{}'.format(img_name),image)
     if (image.shape[0] > 1000 and image.shape[1] > 200) or (image.shape[1] > 600 and image.shape[0] > 100):  # 大图（难分割）
-        pass
-        count += 1
-        print(img_name)
-        img_cpy = image.copy()
-        image = del_vertical_line(image)
-        image = del_horizontal_line(image)
-        img_without_noise = rm_noise(image)
-        line_img = line_seg_large(img_cpy, img_without_noise)
+        if image.shape[0] > 197 and image.shape[1] > 1000: # 表头
+            pass
+            # cv2.imshow('image', image)
+            # cv2.waitKey(0)
+        elif 180 < image.shape[0] and image.shape[0] < 200 and 630 < image.shape[1] and image.shape[1] < 700: # 小表头
+            pass
+            # cv2.imshow('image',image)
+            # cv2.waitKey(0)
+        else: # 多行文本
+            pass
+            count += 1
+            print(img_name)
+            img_cpy = image.copy()
+            image = rm_vertical_line(image)
+            image = rm_horizontal_line(image)
+            img_without_noise = rm_noise(image)
+            line_img = line_seg_large(img_cpy, img_without_noise)
 
+            # # 分水岭方法 - 表现不佳
+            # line_seg = watershed_line_segment.WatershedLineSegment(image)
+            # # image = rm_vertical_line(image)
+            # img_line_erode = line_seg.get_h_projection()
+            # connected_img = line_seg.connectComponents(img_line_erode)
+            # line_seg.Watershed(connected_img)
     else:
         pass
         # count += 1
         # print(img_name)
         # img_cpy = image.copy()
-        # image = del_vertical_line(image)
-        # image = del_horizontal_line(image)
+        # image = rm_vertical_line(image)
+        # image = rm_horizontal_line(image)
         # img_without_noise = rm_noise(image)
         # line_img = line_seg_regu(img_cpy,img_without_noise)
         # cv2.imshow('line_img',line_img)
         # cv2.waitKey(0)
         # 保存图片
         # cv2.imwrite('/Users/zzmacbookpro/Desktop/multipletext-segment/{}'.format(img_name),line_img)
-print(count)
 
-# 测试单个图片
-# file = '/Users/zzmacbookpro/Desktop/segmentation/10612_10015680-t/10612_10015680-t-114.png'
-# image = cv2.imread(file)
-# img_cpy = image.copy()
-# image = del_vertical_line(image)
-# image = del_horizontal_line(image)
-# img_without_noise = rm_noise(image)
-# line_img = line_seg_regu(img_cpy,img_without_noise)

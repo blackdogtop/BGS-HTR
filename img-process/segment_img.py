@@ -1,35 +1,28 @@
-import os
 import cv2
 import numpy as np
 import math
 
-# 读取文件名
-file_dir = '/Users/zzmacbookpro/Desktop/data/classify'
-file_names = []
-for root, dirs, files in os.walk(file_dir):
-    file_names = files
-# print(file_names)
 
 def dots2line(img):
     """
-    如果表格的横线为虚线,识别出虚线后将虚线拟合成直线
+    将虚线拟合为直线
     :params img:
     :returns img_copy:
     Modify:
         15.06.2020
     """
     img_copy = img.copy()
-    #灰度
+    # 灰度
     gray = cv2.cvtColor(img_copy, cv2.COLOR_RGB2GRAY)
-    #边缘检测
+    # 边缘检测
     edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-    #直线拟合
+    # 直线拟合
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 50, minLineLength=400, maxLineGap=20)
     for line in lines:
         x1, y1, x2, y2 = line[0]
-        theta = math.atan(float(y2 - y1)/float(x2 - x1 + 0.001))
-        if theta < np.pi/4 and theta > -np.pi/4:
-            cv2.line(img_copy, (x1, y1), (x2, y2), (0, 0, 0), 2) #黑色
+        theta = math.atan(float(y2 - y1) / float(x2 - x1 + 0.001))
+        if theta < np.pi / 4 and theta > -np.pi / 4:
+            cv2.line(img_copy, (x1, y1), (x2, y2), (0, 0, 0), 2)  # 黑色
     # cv2_imshow(img_copy)
 
     return img_copy
@@ -85,9 +78,9 @@ def fit_table(img):
     return img_copy
 
 
-def tableOut(img):
+def table_out(img):
     """
-    将图像二值化后识别横线与竖线,进而识别表格
+    将图像二值化后识别横线与竖线,进而将每个单元格坐标提取出
     recognise table in the img
     :params img: 原始图片
     :return cell: (x, y, w, h) - 每个表格左上角的坐标,宽度,高度
@@ -222,7 +215,6 @@ def get_n_img_cell(image, coordinate_cells):
                 except IndexError:
                     pass
 
-
     return coordinate_cells
 
 
@@ -235,13 +227,13 @@ def has_text(image, t):
     Modify:
         23.06.2020
     """
-    if t == 't':
+    if t == 'tabular':
         rec = 4
         th = 5
-    elif t == 'd':
+    elif t == 'dashed-line':
         rec = 5
         th = 1
-    elif t == 'n':
+    elif t == 'non-tabular':
         rec = 3
         th = 5
 
@@ -256,70 +248,3 @@ def has_text(image, t):
         return True
     else:
         return False
-
-
-# 创建文件夹
-file_path = '/Users/zzmacbookpro/Desktop/data/segment'
-if not os.path.exists(file_path):
-    os.makedirs(file_path)
-# txt_file = file_path + '/cell.txt'
-
-with open('/Users/zzmacbookpro/Desktop/data/segment/cell.txt', 'w') as f:
-    for i, file_name in enumerate(file_names):
-        if file_name == '.DS_Store':
-            continue
-        print(file_name)
-        image = cv2.imread('/Users/zzmacbookpro/Desktop/data/classify/{}'.format(file_names[i]))
-        original_img = image.copy()
-        img_type = file_name.split('-')[-1][0]
-
-        # 根据图片类型设定不同的阀值
-        if img_type == 'd':  # 虚线
-            image = dots2line(image)  # 虚线拟合直线
-            fitImg = fit_table(image)
-            coordinate_cells = tableOut(fitImg)
-            threshold = 66
-        elif img_type == 't':  # 实线
-            fitImg = fit_table(image)
-            coordinate_cells = tableOut(fitImg)
-            threshold = 40
-        elif img_type == 'n':  # 无表格
-            fitImg = fit_table(image)
-            coordinate_cells = tableOut(fitImg)
-            coordinate_cells = get_n_img_cell(image, coordinate_cells)
-            threshold = 40
-
-        # 路径创建
-        folder = file_path + '/' + file_name.split('.')[0]
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        for j, cell in enumerate(coordinate_cells):
-            y1, y2, x1, x2 = cell[1], cell[1]+cell[3], cell[0], cell[0]+cell[2]  # 坐标
-            # 文件名+行数标记+坐标 保存到txt文档
-            cell_name = file_name.split('.')[0] + '-' + '{:0>3d}'.format(j) + '.' + file_name.split('.')[-1]
-            if has_text(original_img[y1:y2, x1:x2], img_type) is True:  # 如果单元格内有文本
-                if cell[-1] <= threshold:
-                    f.write(cell_name + ' SingleText ')
-                else:
-                    f.write(cell_name + ' MultipleText ')
-            else:  # 如果单元格内没有文本
-                f.write(cell_name + ' NoneText ')
-
-            # if img_type == 'n':  # 将无表格单元格向左多取*个像素
-            #     cell[0] = cell[0]
-            # else:  # 其他单元格向下多取8像素
-            #     bottom_indent = cell[3]+8 if cell[1]+cell[3]+8 <= image.shape[0] else image.shape[0]-cell[1]  # 三元表达式防止越界
-            #     cell[3] = bottom_indent
-            bottom_indent = cell[3] + 8 if cell[1] + cell[3] + 8 <= image.shape[0] else image.shape[0] - cell[1]  # 三元表达式防止越界
-            cell[3] = bottom_indent
-            f.write(str(tuple(cell)))
-            f.write('\r\n')
-
-            # 保存分割图
-            if img_type == 'n':  # 将无表格单元格向左多取*个像素
-                seg_img = original_img[y1:(y2+8), x1:x2]
-            else:  # 其他单元格向下多取8像素
-                seg_img = original_img[y1:(y2+8), x1:x2]
-            img_name = folder + '/' + cell_name
-            cv2.imwrite(img_name, seg_img)

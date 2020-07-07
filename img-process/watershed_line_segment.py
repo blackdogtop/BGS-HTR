@@ -16,10 +16,10 @@ class WatershedLineSegment():
 
         # 定义两个kernel
         self.kernel1 = np.ones((3, 3), np.uint8)
-        self.kernel2 = np.ones((1, 200), np.uint8) # 5,500
+        self.kernel2 = np.ones((5, 20), np.uint8) # 5,500
         # self.kernel3 = np.ones((5, int(self.height / 400) * 100), np.uint8)
-        self.kernel3 = np.ones((5, 300), np.uint8)
-        self.kernel4 = np.ones((1, 400), np.uint8)
+        self.kernel3 = np.ones((3, 40), np.uint8)
+        self.kernel4 = np.ones((2, 70), np.uint8)
 
     def get_h_projection(self):
         """

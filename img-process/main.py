@@ -21,7 +21,7 @@ def main():
         if not os.path.exists(each_dir):
             os.makedirs(each_dir)
 
-    try:  # 获取文件名, 如果original_dir不存在或为空则提示将图片存入路径下
+    try:  # 获取文件名, 如果文件目录不存在或为空则提示将图片存入
         original_names = os.listdir(original_dir)
     except FileNotFoundError:
         print('PLEASE PUT BGS BOREHOLE DATA/IMAGES INTO "{}"'.format(original_dir))
@@ -41,14 +41,14 @@ def main():
             """旋转"""
             rotated_image = rotate.rotation(original_image)
             # 保存旋转后的图片
-            # cv2.imwrite(rotated_dir + '/{}'.format(original_name), rotated_image)
+            cv2.imwrite(rotated_dir + '/{}'.format(original_name), rotated_image)
 
             """分类"""
             image_type = classify.ctr_detect(rotated_image)
             # 将不同类别图片保存在不同目录下
             if not os.path.exists(classified_dir + '/' + image_type):
                 os.makedirs(classified_dir + '/' + image_type)
-            # cv2.imwrite(classified_dir + '/' + image_type + '/{}'.format(original_name), rotated_image)
+            cv2.imwrite(classified_dir + '/' + image_type + '/{}'.format(original_name), rotated_image)
 
             """图片分割(单元格分割)"""
             if image_type == 'dashed-line':  # 虚线
@@ -57,11 +57,11 @@ def main():
                 coordinate_cells = segment_img.table_out(table_fit_image)  # 单元格提取
                 threshold = 66
             elif image_type == 'tabular':  # 表格
-                table_fit_image = segment_img.fit_table(rotated_image)    # 表格拟合
+                table_fit_image = segment_img.fit_table(rotated_image)     # 表格拟合
                 coordinate_cells = segment_img.table_out(table_fit_image)  # 单元格提取
                 threshold = 66
             elif image_type == 'non-tabular':  # 无表格
-                table_fit_image = segment_img.fit_table(rotated_image)    # 表格拟合
+                table_fit_image = segment_img.fit_table(rotated_image)     # 表格拟合
                 coordinate_cells = segment_img.table_out(table_fit_image)  # 单元格提取
                 coordinate_cells = segment_img.get_n_img_cell(rotated_image, coordinate_cells)
                 threshold = 40
@@ -74,6 +74,7 @@ def main():
                 # 文件名+索引+textType+坐标 保存到txt文档
                 y1, y2, x1, x2 = cell[1], cell[1] + cell[3], cell[0], cell[0] + cell[2]
                 cell_name = original_name.split('.')[0] + '-' + '{:0>3d}'.format(j) + '.' + original_name.split('.')[-1]
+
                 if segment_img.has_text(rotated_image[y1:y2, x1:x2], image_type) is True:  # 粗略判断单元格内有无文本
                     if cell[-1] <= threshold:
                         f.write(cell_name + ' SingleText ')

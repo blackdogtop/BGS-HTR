@@ -9,7 +9,7 @@ def dots2line(img):
     :params img:
     :returns img_copy:
     Modify:
-        15.06.2020
+        06.07.2020 - 添加异常处理
     """
     img_copy = img.copy()
     # 灰度
@@ -18,6 +18,9 @@ def dots2line(img):
     edges = cv2.Canny(gray, 50, 150, apertureSize=3)
     # 直线拟合
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 50, minLineLength=400, maxLineGap=20)
+    # 异常处理
+    if lines is None:
+        return img_copy
     for line in lines:
         x1, y1, x2, y2 = line[0]
         theta = math.atan(float(y2 - y1) / float(x2 - x1 + 0.001))

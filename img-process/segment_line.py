@@ -69,54 +69,58 @@ def rm_noise(image):
     return res
 
 
-def line_seg_regu(original_img, img_without_noise):
+def header_segment(original_img, binary_img):
     """
-    将传入的灰度二值小图像进行行分割
-    :param original_img: 原图
-           img_without_noise: 经过去噪点处理的灰度二值图
-    :return:
+    表头图片分割
+    :param original_img: 一张RGB图片
+    :param binary_img: 二值化图片(去噪)
+    :return line_ctrs: 行矩形轮廓坐标(x, y, w, h)
     Modify:
-        28.06.2020
+        07.07.2020
     """
-    # gray = cv2.cvtColor(none_noise_img, cv2.COLOR_BGR2GRAY)
-    binary = cv2.adaptiveThreshold(~img_without_noise, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 15, -80)
-    kernel = np.ones((8, 1), np.uint8)  # 1,1
-    img_erode = cv2.erode(binary, kernel, iterations=1)  #
-    kernel = np.ones((1, 60), np.uint8)  # 2,40
+    original_cpy = original_img.copy()
+
+    kernel = np.ones((3, 1), np.uint8)
+    img_erode = cv2.erode(~binary_img, kernel, iterations=1)
+
+    kernel = np.ones((1, 70), np.uint8)
     img_dilation = cv2.dilate(img_erode, kernel, iterations=1)
     # cv2.imshow('img_dilation', img_dilation)
 
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+    line_ctrs = []
     for i, ctr in enumerate(sorted_ctrs):
         area = cv2.contourArea(ctr)
         x, y, w, h = cv2.boundingRect(ctr)
         # 限定条件
-        if area < 440:
-            pass
-            # continue
+        if area < 1000:
+            continue
         if h < 7:
-            pass
-            # continue
-        cv2.rectangle(original_img, (x, y), (x + w, y + h), (90, 0, 255), 1)
-        # print(area)
-    # if original_img.shape[0] > 1000:
-    #     original_img = cv2.resize(original_img, (80, 800))
-    # cv2.imshow('img_dilation',img_dilation)
-    # cv2.imshow('original_img',original_img)
+            continue
+        line_ctrs.append([x, y, w, h])
+        cv2.rectangle(original_cpy, (x, y), (x + w, y + h), (90, 0, 255), 1)
+        """获取行分割图"""
+        line_text_img = original_cpy[y:y + h, x:x + w]
+        # cv2.imshow('line_text_img',line_text_img)
+        # cv2.waitKey(0)
+
+    # cv2.imshow('original_img', original_img)
     # cv2.waitKey(0)
-    return original_img
+
+    return line_ctrs
 
 
 def line_segment(original_img, binary_img):
     """
-    将传入的灰度二值多行文本图像进行行分割
+    将二值多行文本图像行分割
     :param
             original_img: 一张RBG图片
             binary_img: 二值化图片(去噪)
-    :return:
+    :return line_text_imgs: 所有行分割图
+            line_text_ctrs: 所有行分割图轮廓
     Modify:
-        07.07.2020
+        08.07.2020
     """
     original_cpy1 = original_img.copy()
     original_cpy2 = original_img.copy()
@@ -133,14 +137,18 @@ def line_segment(original_img, binary_img):
 
     ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+
+    line_text_imgs = []  # 存放所有行分割图
+    line_text_ctrs = []  # 存放所有行分割图轮廓
+
     for i, ctr in enumerate(sorted_ctrs):
         area = cv2.contourArea(ctr)
         x, y, w, h = cv2.boundingRect(ctr)
-        main_ctr = [x, y, w, h]
         if area < 1250:  # 450
             continue
         if h < 10 or w < 10:  # 8
             continue
+        main_ctr = [x, y, w, h]
         cv2.rectangle(original_img, (x, y), (x + w, y + h), (0, 0, 255), 1)
         """连通区域获取"""
         # 填充
@@ -166,13 +174,63 @@ def line_segment(original_img, binary_img):
         original_cpy1 = copy.deepcopy(original_cpy2)
 
         """获取行分割图"""
-        line_seg_img = get_line_segment_image(original_cpy2, main_ctr, y_extra, cc_ctrs)
+        line_text_img = get_line_segment_image(original_cpy2, main_ctr, y_extra, cc_ctrs)
+        line_text_imgs.append(line_text_img)
+        line_text_ctrs.append(main_ctr)
         # cv2.imshow('original_cpy2',original_cpy2)
-        # cv2.imshow('line_seg_img',line_seg_img)
+        # cv2.imshow('line_seg_img',line_text_img)
         # cv2.waitKey(0)
 
-    cv2.imshow('original_img with contours', original_img)
-    cv2.waitKey(0)
+    # cv2.imshow('original_img with contours', original_img)
+    # cv2.waitKey(0)
+
+    return line_text_imgs, line_text_ctrs
+
+
+def num_img_segment(original_img, binary_img, area_th=400):
+    """
+    数字文本图像行分割
+    :param original_img: RGB图
+    :param binary_img: 二值化图(去噪)
+    :param area_th: 面积阀值
+    :return line_ctrs: 行矩形轮廓坐标(x, y, w, h)
+    Modify:
+        07.07.2020
+    """
+    original_cpy = original_img.copy()
+
+    kernel = np.ones((3, 3), np.uint8)
+    img_dilation = cv2.dilate(~binary_img, kernel, iterations=1)
+    kernel = np.ones((1, 5), np.uint8)
+    img_erode = cv2.erode(img_dilation, kernel, iterations=1)
+    kernel = np.ones((1, 40), np.uint8)
+    img_dilation = cv2.dilate(img_erode, kernel, iterations=1)
+    # cv2.imshow('er', img_dilation)
+
+    ctrs, hier = cv2.findContours(img_dilation.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    sorted_ctrs = sorted(ctrs, key=lambda ctr: cv2.boundingRect(ctr)[0])
+    line_ctrs = []
+    for i, ctr in enumerate(sorted_ctrs):
+        area = cv2.contourArea(ctr)
+        x, y, w, h = cv2.boundingRect(ctr)
+        # 限定条件
+        if area < area_th:
+            continue
+        if h < 8 or h > 80:
+            continue
+        if h > w:
+            continue
+        line_ctrs.append([x, y, w, h])
+        cv2.rectangle(original_cpy, (x, y), (x + w, y + h), (90, 0, 255), 1)
+        """获取行分割图"""
+        line_text_img = original_cpy[y:y + h, x:x + w]
+        # cv2.imshow('line_text_img',line_text_img)
+        # cv2.waitKey(0)
+
+    # cv2.imshow('original_img', original_img)
+    # cv2.waitKey(0)
+
+    return line_ctrs
 
 
 def get_connected_component(roi, roi_coordinate):
@@ -261,71 +319,15 @@ def get_line_segment_image(image, main_ctr, y_extra, cc_ctrs):
     # 白色背景图
     white_bg = 255 * np.ones_like(image)
     # 主体轮廓
-    main_roi = image[y:y+h, x:x+w]
-    white_bg[y:y+h, x:x+w] = main_roi
+    main_roi = image[y:y + h, x:x + w]
+    white_bg[y:y + h, x:x + w] = main_roi
     # 连通区域
     for cc_ctr in cc_ctrs:
         cc_x, cc_y, cc_w, cc_h = cc_ctr
-        cc_roi = image[cc_y:cc_y+cc_h, cc_x:cc_x+cc_w]
-        white_bg[cc_y:cc_y+cc_h, cc_x:cc_x+cc_w] = cc_roi
+        cc_roi = image[cc_y:cc_y + cc_h, cc_x:cc_x + cc_w]
+        white_bg[cc_y:cc_y + cc_h, cc_x:cc_x + cc_w] = cc_roi
 
-    white_bg = white_bg[y_top:y_bottom, x:x+w]
+    white_bg = white_bg[y_top:y_bottom, x:x + w]
     return white_bg
 
 
-
-
-
-# 读取文件名
-img_names = []
-with open('/Users/zzmacbookpro/PycharmProjects/img_process/data/segmented/cell.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-        text_type = line.split()[1]
-        if text_type == 'MultipleText':
-            img_name = line.split()[0]
-            img_names.append(img_name)
-
-# 读取图片进行行分割
-for img_name in img_names:
-    img_dir = img_name.split('-')[0]
-    file = '/Users/zzmacbookpro/PycharmProjects/img_process/data/segmented/' + img_dir + '/' + img_name
-    image = cv2.imread(file)
-    if (image.shape[0] > 1000 and image.shape[1] > 200) or (image.shape[1] > 600 and image.shape[0] > 100):
-        if 197 < image.shape[0] < 500 and image.shape[1] > 1000:  # 直接忽略表头
-            pass
-        elif 180 < image.shape[0] < 200 and 630 < image.shape[1] < 700:  # 小表头
-            pass
-            # print(img_name)
-            # img_cpy = image.copy()
-            # image = rm_vertical_line(image)
-            # image = rm_horizontal_line(image)
-            # image = rm_noise(image)
-            # line_segment(img_cpy, image)
-        else:  # 多行文本
-            pass
-            # print(img_name)
-            # img_cpy = image.copy()
-            # image = rm_vertical_line(image)
-            # image = rm_horizontal_line(image)
-            # image = rm_noise(image)
-            # line_segment(img_cpy, image)
-
-            # 使用分水岭方法行分割
-            # line_seg = watershed_line_segment.WatershedLineSegment(image)
-            # image = rm_vertical_line(image)
-            # img_line_erode = line_seg.get_h_projection()
-            # connected_img = line_seg.connectComponents(img_line_erode)
-            # line_seg.Watershed(connected_img)
-    else:
-        pass
-        # print(img_name)
-        # img_cpy = image.copy()
-        # image = rm_vertical_line(image)
-        # image = rm_horizontal_line(image)
-        # image = rm_noise(image)
-        # cv2.imshow('image',image)
-        # cv2.waitKey(0)
-        # line_img = line_seg_regu(img_cpy,image)
-        # cv2.imshow('line_img',line_img)
-        # cv2.waitKey(0)

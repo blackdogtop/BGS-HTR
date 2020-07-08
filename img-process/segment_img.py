@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import classify
 
 
 def dots2line(img):
@@ -228,15 +229,15 @@ def has_text(image, t):
             t: 图片类型
     :return True/False
     Modify:
-        23.06.2020
+        08.07.2020 - change tabular threshold from 5 to 4
     """
-    if t == 'tabular':
+    if t == classify.image_type3:  # 表格
         rec = 4
-        th = 5
-    elif t == 'dashed-line':
+        th = 4  # 5
+    elif t == classify.image_type1:  # 虚线
         rec = 5
         th = 1
-    elif t == 'non-tabular':
+    elif t == classify.image_type2:  # 无表格
         rec = 3
         th = 5
 
@@ -251,3 +252,18 @@ def has_text(image, t):
         return True
     else:
         return False
+
+
+def has_multiple_text(height, h_th):
+    """
+    根据高度判断单元格内是否是多行文本
+    :param height: 单元格高度
+    :param h_th: 高度阀值
+    :return: True/False
+    Modify:
+        08.07.2020
+    """
+    if height <= h_th:
+        return False
+    else:
+        return True

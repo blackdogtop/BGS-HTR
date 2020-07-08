@@ -1,6 +1,11 @@
 import cv2
 
 
+image_type1 = 'dashed-line'
+image_type2 = 'non-tabular'
+image_type3 = 'tabular'
+
+
 def ctr_detect(img, th1=30, th2=100):
     """
     根据图像中轮廓个数与不同阀值比较判断图像类型 - 表格图(t),无表格图(n),虚线表格图(d)
@@ -26,8 +31,8 @@ def ctr_detect(img, th1=30, th2=100):
     contours, hierarchy = cv2.findContours(merge, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     if len(contours) < th1:
-        return 'dashed-line'
+        return image_type1
     elif th1 <= len(contours) < th2:
-        return 'non-tabular'
+        return image_type2
     else:
-        return 'tabular'
+        return image_type3

@@ -23,18 +23,19 @@ def train(model, loader):
     earlyStopping = 8  # Stop training after this number of epochs without improvement
     batchNum = 0
 
-    totalEpoch = len(loader.trainSamples)//loader.numTrainSamplesPerEpoch
+    totalEpoch = len(loader.trainSamples)//loader.numTrainSamplesPerEpoch  # 总样本数//每个epoch训练的样本数
 
     while True:
         epoch += 1
-        print('Epoch:', epoch, '/', totalEpoch)
+        # print('Epoch:', epoch, '/', totalEpoch)
+        print('Epoch:', epoch)
 
         # Train
         print('Train neural network')
         loader.trainSet()
         while loader.hasNext():
             batchNum += 1
-            iterInfo = loader.getIteratorInfo()
+            iterInfo = loader.getIteratorInfo()  # batch进度
             batch = loader.getNext()
             loss = model.trainBatch(batch, batchNum)
             print('Batch:', iterInfo[0], '/', iterInfo[1], 'Loss:', loss)

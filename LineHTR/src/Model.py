@@ -272,7 +272,7 @@ class Model:
     def trainBatch(self, batch, batchNum):
         """ Feed a batch into the NN to train it """
         spare = self.toSpare(batch.gtTexts)
-        rate = 0.01 if self.batchesTrained < 10 else (
+        rate = 0.01 if self.batchesTrained < 50 else (
             0.001 if self.batchesTrained < 2750 else 0.0001)
         (loss_summary, _, lossVal) = self.sess.run([self.merge, self.optimizer, self.loss], {
             self.inputImgs: batch.imgs, self.gtTexts: spare, self.seqLen: [Model.maxTextLen] * Model.batchSize, self.learningRate: rate})

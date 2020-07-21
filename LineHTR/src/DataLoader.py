@@ -18,7 +18,7 @@ class FilePaths:
     fnCorpus = '../data/corpus.txt'
     fnAccuracy = '../model/accuracy.txt'
     fnTrain = '../data/'
-    fnInfer = '/path/to/infer/data/'  # 测试图片
+    fnInfer = '../data/3783_10005091-026.png'  # 测试图片
 
 
 class Sample:
@@ -89,8 +89,8 @@ class DataLoader:
         print("Train on", len(self.trainSamples), "images. Validate on",
               len(self.validationSamples), "images.")
 
-        # Number of randomly chosen samples per epoch for training
-        self.numTrainSamplesPerEpoch = 25000
+        # 每个epoch训练的样本数
+        self.numTrainSamplesPerEpoch = 5500
 
         # Start with train set
         self.trainSet()

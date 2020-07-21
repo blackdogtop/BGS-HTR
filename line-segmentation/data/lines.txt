@@ -8,7 +8,7 @@
 # 	000	       		-> index
 #	.png			-> image format
 #
-#     	ok              	-> result of word segmentation
+#     	ok              	-> result of line segmentation
 #                            		ok: line is correctly segmented
 #                            		err: segmentation of line has one or more errors
 #					blank: the image has no content

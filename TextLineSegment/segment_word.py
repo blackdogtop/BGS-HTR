@@ -4,6 +4,8 @@ import os
 import math
 import numpy as np
 
+from main import FilePaths
+
 
 def wordSegmentation(img, kernelSize=25, sigma=11, theta=7, minArea=0):
     """Scale space technique for word segmentation proposed by R. Manmatha: http://ciir.cs.umass.edu/pubfiles/mm-27.pdf
@@ -84,15 +86,12 @@ def createKernel(kernelSize, sigma, theta):
 def main():
     """reads images from data/ and outputs the word-segmentation to out/"""
 
-    data_dir = './data/'
-    line_seg_dir = data_dir + 'line_segment'  # 行分割目录
-    word_seg_dir = data_dir + 'word_segment'
-
-    files = os.listdir(line_seg_dir)
+    print('start segmenting...')
+    files = os.listdir(FilePaths.line_seg_dir)
     for file in files:
         if file == '.DS_Store' or file == 'lines.txt':
             continue
-        img_dir = line_seg_dir + '/' + file
+        img_dir = FilePaths.line_seg_dir + '/' + file
         images_path = os.listdir(img_dir)
         for image_path in images_path:
             image_name = image_path.split('.')[0]
@@ -110,20 +109,20 @@ def main():
             res = wordSegmentation(img, kernelSize=25, sigma=11, theta=7, minArea=100)
 
             # write output to 'out/inputFileName' directory
-            if not os.path.exists(word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name):
-                os.makedirs(word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name)
+            if not os.path.exists(FilePaths.word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name):
+                os.makedirs(FilePaths.word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name)
 
             # iterate over all segmented words
             print('Segmented into %d words' % len(res))
             for (j, w) in enumerate(res):
                 (wordBox, wordImg) = w
                 (x, y, w, h) = wordBox
-                cv2.imwrite(word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name + '/'+ '{}'.format(j) + '.png', wordImg)
+                cv2.imwrite(FilePaths.word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name + '/'+ '{}'.format(j) + '.png', wordImg)
                 # cv2.imwrite('../out/%s/%d.png' % (f, j), wordImg)  # save word
                 cv2.rectangle(img, (x, y), (x + w, y + h), 0, 1)  # draw bounding box in summary image
 
             # output summary image with bounding boxes around words
-            cv2.imwrite(word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name + '/summary.png', img)
+            cv2.imwrite(FilePaths.word_seg_dir + '/' + image_name.split('-')[0] + '/' + image_name + '/summary.png', img)
 
 
 

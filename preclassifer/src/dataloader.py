@@ -26,11 +26,16 @@ import errno
 import shutil
 from keras import backend as K
 
+"""pre-classifier.ipynb
+
+Original file is trained at Colaboratory
+    https://colab.research.google.com/drive/1Ga2RN8ZUFT4lK4EyRtufo475n2IrGYHX
+"""
 
 class FilePaths:
     root_dir = '../data/train/'  # 训练数据
     class_names = ['digital', 'handwritten', 'printed']
-    test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/4043_10005336'  # 测试数据
+    test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/4044_10005338'  # 测试数据
     savedModel = '../models/pre-classifier-model.pt'
 
 

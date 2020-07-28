@@ -19,7 +19,14 @@
 
 >+ 14.07.2020 提供标签
 
+>+ 15.07.2020 word recognition
+
 >+ 19.07.2020 校对标签
+
+>+ 27.07.2020 text-line recognition
+
+>+ 28.07.2020 pre-classifier
+
 ***
 
 # 按功能部分讲解

@@ -1,0 +1,52 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 1 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: Model.py
+--------------------------------------------------------------------------------
+Model.py:277:2: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'Model.py'
+ outputting to 'Model-upgraded.py'
+--------------------------------------------------------------------------------
+
+36:18: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+39:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+48:22: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+49:20: INFO: Renamed 'tf.get_collection' to 'tf.compat.v1.get_collection'
+49:38: INFO: Renamed 'tf.GraphKeys' to 'tf.compat.v1.GraphKeys'
+51:20: INFO: Renamed 'tf.train.RMSPropOptimizer' to 'tf.compat.v1.train.RMSPropOptimizer'
+70:24: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+71:10: INFO: Added keywords to args of function 'tf.nn.conv2d'
+71:10: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+72:15: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+74:10: INFO: Added keywords to args of function 'tf.nn.max_pool'
+74:10: INFO: Renamed keyword argument for tf.nn.max_pool from value to input
+74:10: INFO: Renamed 'tf.nn.max_pool' to 'tf.nn.max_pool2d'
+85:11: INFO: Renamed 'tf.contrib.rnn.LSTMCell' to 'tf.compat.v1.nn.rnn_cell.LSTMCell'
+88:12: INFO: Renamed 'tf.contrib.rnn.MultiRNNCell' to 'tf.compat.v1.nn.rnn_cell.MultiRNNCell'
+92:18: INFO: Renamed 'tf.nn.bidirectional_dynamic_rnn' to 'tf.compat.v1.nn.bidirectional_dynamic_rnn'
+98:23: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+105:20: INFO: Added keywords to args of function 'tf.transpose'
+107:33: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+107:77: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+107:111: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+110:16: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+111:14: INFO: Added keywords to args of function 'tf.reduce_mean'
+111:29: INFO: Renamed 'tf.nn.ctc_loss' to 'tf.compat.v1.nn.ctc_loss'
+114:23: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+115:24: INFO: Renamed 'tf.nn.ctc_loss' to 'tf.compat.v1.nn.ctc_loss'
+121:18: INFO: Removed argument merge_repeated for function tf.nn.ctc_beam_search_decoder
+132:59: INFO: Renamed keyword argument for tf.nn.softmax from dim to axis
+140:7: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+142:10: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+156:12: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+277:2: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+

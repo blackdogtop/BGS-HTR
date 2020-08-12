@@ -20,7 +20,8 @@ class FilePaths:
 	fnCharList = '../../models/TextWordHTR/charList.txt'
 	fnAccuracy = '../../models/TextWordHTR/accuracy.txt'
 	fnTrain = '../../data/TextWordHTR/'
-	fnInfer = '../../data/TextWordHTR/coloured.png'
+	# fnInfer = '../../data/TextWordHTR/coloured.png'
+	fnInfer = '/Users/zzmacbookpro/PycharmProjects/BGS-HTR/data/word-segment/11447_13376792/11447_13376792-006/1.png'
 	fnCorpus = '../../data/TextWordHTR/corpus.txt'
 	fnInferDir = '/Users/zzmacbookpro/PycharmProjects/img_process/data/word_segment'
 
@@ -147,7 +148,7 @@ def main():
 		model = Model(open(FilePaths.fnCharList).read(), decoderType, mustRestore=True, dump=args.dump)
 
 		r = infer(model, FilePaths.fnInfer)
-		print(r)
+		print('recognised:' + r)
 
 		# with open('../data/lines.txt', 'r') as f:
 		# 	lines = f.readlines()
@@ -180,4 +181,7 @@ def main():
 
 if __name__ == '__main__':
 	main()
+	image = cv2.imread(FilePaths.fnInfer)
+	cv2.imshow('test', image)
+	cv2.waitKey(0)
 

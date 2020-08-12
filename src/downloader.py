@@ -194,6 +194,6 @@ if __name__ == '__main__':
     Only BGS scanned records form SD, SE, SH, SJ, SK, SM, SN, SO, SP, SS, ST, SU, SY, SZ, TA, TF, TG, TL, TM, TQ are available.
     """
     downloader = Downloader()
-    downloader.get_img_by_grid('SD')
-    # for i in range(1500,1600):
-    #     downloader.get_img_by_page(i)
+    # downloader.get_img_by_grid('SD')
+    for i in range(2):
+        downloader.get_img_by_page(i)

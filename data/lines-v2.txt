@@ -2,7 +2,7 @@
 #
 # BGS borehole database line information
 #
-# format: 10629_10015718-000.png (352, 1550, 558, 42) like|foundry|sand.
+# format: 10629_10015718-000.png ok handwritten (352, 1550, 558, 42) like|foundry|sand|.
 #
 #	10629_10015718 		-> BGS ID
 # 	000	       		-> index

@@ -189,11 +189,14 @@ class Downloader:
                 self.get_img_by_page(page)
 
 if __name__ == '__main__':
-    """
-    Notice:
-    Only BGS scanned records form SD, SE, SH, SJ, SK, SM, SN, SO, SP, SS, ST, SU, SY, SZ, TA, TF, TG, TL, TM, TQ are available.
-    """
     downloader = Downloader()
-    # downloader.get_img_by_grid('SD')
-    for i in range(2):
-        downloader.get_img_by_page(i)
+
+    # download according to BNG square
+    downloader.get_img_by_grid('SD')
+
+    # download according to BGS index page
+    # for i in range(2):
+    #     downloader.get_img_by_page(i)
+
+    # download according to BGS ID - the url refers to BGS ID: 3
+    # downloader.get_img_by_id('http://scans.bgs.ac.uk/sobi_scans/boreholes/3/images/10000007.html')

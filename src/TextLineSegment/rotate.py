@@ -29,9 +29,16 @@ def rotation(img):
     lines = cv2.HoughLinesP(edges, rho, theta, threshold, minLineLength=mLL, maxLineGap=mLG)
     if lines is None:  # 图像无直线,无法识别
         return img
+
+    # visualise one line
     # for x1, y1, x2, y2 in lines[0]:
     #     cv2.line(image_copy, (x1, y1), (x2, y2), (0, 255, 0), 2)
     # cv2.imshow(image_copy)
+
+    # visualise all lines
+    # for line in lines:
+    #     for x1, y1, x2, y2 in line:
+    #         cv2.line(image_copy, (x1, y1), (x2, y2), (0, 0, 255), 4)
 
     pi = 3.1415
     theta_total = 0

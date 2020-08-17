@@ -36,7 +36,8 @@ class FilePaths:
     root_dir = '../../data/pre-classifier-data/'  # 训练数据
     class_names = ['digital', 'handwritten', 'printed']
     # test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/3783_10005091'  # 单个测试数据
-    test_dir = '../../data/line-segment/'
+    # test_dir = '../../data/line-segment/'
+    test_dir = '../../data/preprocessed/'
     savedModel = '../../models/pre-classifier/pre-classifier-model.pt'
 
 

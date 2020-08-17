@@ -9,7 +9,8 @@ import os
 
 class SavedPath:
     savedRootPath = '../../data/'
-    resnet101Pretrained = savedRootPath + 'preclassifier-prediction.txt'
+    # resnet101Pretrained = savedRootPath + 'preclassifier-prediction.txt'
+    resnet101Pretrained = savedRootPath + 'preclassifier-prediction-preprocessed.txt'
     resnet101PretrainedLabel = '# preclassifier - ResNet 101 pretrained prediction on BGS text-lines dataset'
 
 
@@ -64,42 +65,3 @@ if __name__ == '__main__':
             f.write(' ' + imageType)
             if i != len(sortedPreclassify):
                 f.write('\n')
-
-    # for i, path in enumerate(test_data_df['path']):
-    #     fileName = path.split('/')[-1]
-    #     # 获取未提供标签的BGS文本行文件
-    #     if fileName == 'lines.txt':
-    #         with open(path, 'r') as f:
-    #             BGSLines = f.readlines()
-    #         # print(BGSLines)
-    #         for j, BGSline in enumerate(BGSLines):
-    #             segmentName = BGSline.split()[0]
-    #             imageName = segmentName.split('-')[0]
-    #             segmentCoordinate = '(' + BGSline.strip().split('(')[1]
-    #             # print(imageName)
-    #             # 判断正在读取的segmentation的图片名是否等于上一个segmentation的图片名
-    #             if imageName != BGSLines[j-1].split()[0].split('-')[0]:
-    #                 print(imageName)
-    # preclassifyDict = {}
-    # results = main()
-    # for i, path in enumerate(test_data_df['path']):
-    #     imageName = path.split('/')[-1]
-    #     preclassifyDict[imageName] = results[i]
-    #     # print(imageName, results[i])
-    # print(preclassifyDict)
-    #
-    # sortedPreclassify = sortDictKey(preclassifyDict)
-
-    # for i, path in enumerate(test_data_df['path']):
-    #     imageName = path.split('/')[-1]
-    #     image = cv2.imread(path)
-    #     # print(results[i])
-    #     print('image {} is:'.format(imageName), end=' ')
-    #     if results[i] == 0:
-    #         print('digital')
-    #     elif results[i] == 1:
-    #         print('handwritten')
-    #     else:
-    #         print('printed')
-    #     cv2.imshow('{}'.format(imageName), image)
-    #     cv2.waitKey(0)

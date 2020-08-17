@@ -3,7 +3,8 @@
 
 class FilePaths:
     labelledFile = '../../data/lines-v2.txt'
-    preclassifyFile = '../../data/preclassifier-prediction.txt'
+    # preclassifyFile = '../../data/preclassifier-prediction.txt'
+    preclassifyFile = '../../data/preclassifier-prediction-preprocessed.txt'
 
 def sortDictKey(dict):
     """字典根据key重新排序"""

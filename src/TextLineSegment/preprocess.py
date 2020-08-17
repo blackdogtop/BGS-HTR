@@ -6,6 +6,7 @@ from PIL import Image
 
 import segmentImg
 import segmentLine
+from Segment import FilePaths
 
 """预处理移除图片横线和竖线"""
 
@@ -33,12 +34,12 @@ def getFillValue(points, image):
         except IndexError:
             continue
         # 左上角的像素点不是已有的交点并且值小于128
-        if (x-1,y-1) not in points and image[y - 1, x - 1][0] < 128:  # 128
+        if (x - 1, y - 1) not in points and image[y - 1, x - 1][0] < 128:  # 128
             pixelValue += int(image[y - 1, x - 1][0])
             count += 1
 
     # print(count)
-    return int(pixelValue/count) if count != 0 else 50
+    return int(pixelValue / count) if count != 0 else 50
 
 
 def getMorePoints(points):
@@ -47,8 +48,8 @@ def getMorePoints(points):
     for point in points:
         x, y = point
         morePoints.append((x, y))
-        morePoints.append((x, y-1))
-        morePoints.append((x, y+1))
+        morePoints.append((x, y - 1))
+        morePoints.append((x, y + 1))
 
     """indexError bug有待解决"""
 
@@ -90,22 +91,39 @@ def rmUnderline(image):
     return image
 
 
+def binaryImage(image):
+    """将图像二值化增强对比"""
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+    # thresh = cv2.cvtColor(~thresh, cv2.COLOR_GRAY2RGB)
+    binary = cv2.adaptiveThreshold(~gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 15, -80)
+    binary = cv2.cvtColor(~binary, cv2.COLOR_GRAY2RGB)
+    return binary
+
+
 if __name__ == '__main__':
-    path = '/Users/zzmacbookpro/Desktop/BGS-data-copy/line_segment/16288_13378153'
-    files = os.listdir(path)
-    savePath = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/' + path.split('/')[-1]
-    if not os.path.exists(savePath):
-        os.mkdir(savePath)
-    for file in files:
-        if file == '.DS_Store':
-            continue
-        print(file)
-        image = cv2.imread(path + '/' + file)
-        # cv2.imshow('original', image)
-
-        image = rmUnderline(image)  # 移除横线
-        # image = segmentLine.rm_vertical_line(image)  # 移除竖线
-
-        # cv2.imshow('rm',image)
-        # cv2.waitKey(0)
-        cv2.imwrite(savePath + '/{}'.format(file), image)
+    imageNames = os.listdir(FilePaths.line_seg_dir)
+    for imageName in imageNames:
+        if '.' not in imageName:  # 文件异常
+            path = FilePaths.line_seg_dir + '/' + imageName
+            files = os.listdir(path)
+            # print(files)
+            savePath = '../../data/preprocessed/' + imageName
+            if not os.path.exists(savePath):
+                os.mkdir(savePath)
+            for file in files:
+                if file == '.DS_Store':
+                    continue
+                # print(file)
+                image = cv2.imread(path + '/' + file)
+                # 移除横线
+                try:
+                    image = rmUnderline(image)
+                except IndexError:
+                    print(file)
+                # 移除竖线
+                # image = segmentLine.rm_vertical_line(image)
+                # 二值化
+                # image = binaryImage(image)
+                # 保存
+                cv2.imwrite(savePath + '/{}'.format(file), image)

@@ -1,4 +1,4 @@
-from dataloader import train_loader, FilePaths
+from dataloader import train_loader, FilePaths, validation_loader
 from torchvision import models
 import torch.nn as nn
 import torch
@@ -47,6 +47,23 @@ def train_model_epochs(num_epochs, gpu=True):
                 print('Epoch / Batch [%d / %d] - Loss: %.3f' %
                       (epoch + 1, i + 1, running_loss / length))
                 running_loss = 0.0
+
+        with torch.no_grad():
+            for data_val in validation_loader:
+                images_val, labels_val = data_val
+
+                images_val = images_val.to(device)
+                labels_val = labels_val.to(device)
+
+                outputs_val = model(images_val)
+
+                loss_val = criterion(outputs_val, labels_val)
+                running_loss_val += loss_val.item()
+
+                _, predicted = torch.max(outputs_val.data, 1)
+
+        print('- val_loss:%.3f' % (running_loss_val / len(validation_loader)))
+        running_loss_val = 0
 
 
 if __name__ == '__main__':

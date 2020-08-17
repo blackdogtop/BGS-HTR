@@ -35,7 +35,8 @@ Original file is trained at Colaboratory
 class FilePaths:
     root_dir = '../../data/pre-classifier-data/'  # 训练数据
     class_names = ['digital', 'handwritten', 'printed']
-    test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/3783_10005091'  # 测试数据
+    # test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/3783_10005091'  # 单个测试数据
+    test_dir = '../../data/line-segment/'
     savedModel = '../../models/pre-classifier/pre-classifier-model.pt'
 
 
@@ -109,8 +110,17 @@ data_df = getDataFrame(paths, classes)
 
 # test DF
 test_paths = []
-for test_file in os.listdir(FilePaths.test_dir):
-    test_paths.append(FilePaths.test_dir + '/' + test_file)
+# 获取所有segmentations
+for i, j, k in os.walk(FilePaths.test_dir):
+    for filename in k:
+        # 仅获取图像文件
+        if filename.split('.')[-1] == 'png':
+            imageName = filename.split('-')[0]
+            segmentName = filename
+            test_paths.append(FilePaths.test_dir + imageName + '/' +segmentName)
+# 获取一张图片下所有的segmentations
+# for test_file in os.listdir(FilePaths.test_dir):
+#     test_paths.append(FilePaths.test_dir + '/' + test_file)
 test_classes = []
 for i in range(len(test_paths)):
     test_classes.append(int(9))

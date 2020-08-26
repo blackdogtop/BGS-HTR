@@ -21,9 +21,10 @@ class FilePaths:
 	fnAccuracy = '../../models/TextWordHTR/accuracy.txt'
 	fnTrain = '../../data/TextWordHTR/'
 	# fnInfer = '../../data/TextWordHTR/coloured.png'
-	fnInfer = '/Users/zzmacbookpro/PycharmProjects/BGS-HTR/data/word-segment/11447_13376792/11447_13376792-006/1.png'
+	fnInfer = '/Users/zzmacbookpro/PycharmProjects/BGS-HTR/data/word-segment/14360_10020584/14360_10020584-095/0.png'
 	fnCorpus = '../../data/TextWordHTR/corpus.txt'
-	fnInferDir = '/Users/zzmacbookpro/PycharmProjects/img_process/data/word_segment'
+	fnInferDir = '../../data/word-segment'
+	# fnInferDir = '../../data/word-segment-preprocessed'
 
 
 def train(model, loader):
@@ -117,7 +118,8 @@ def main():
 
 	args = parser.parse_args()
 
-	decoderType = DecoderType.BestPath
+	# decoderType = DecoderType.BestPath
+	decoderType = DecoderType.BeamSearch
 	if args.beamsearch:
 		decoderType = DecoderType.BeamSearch
 	elif args.wordbeamsearch:
@@ -147,41 +149,39 @@ def main():
 		print(open(FilePaths.fnAccuracy).read())
 		model = Model(open(FilePaths.fnCharList).read(), decoderType, mustRestore=True, dump=args.dump)
 
-		r = infer(model, FilePaths.fnInfer)
-		print('recognised:' + r)
+		"""recognise a single test image"""
+		# r = infer(model, FilePaths.fnInfer)
+		# print('recognised:' + r)
 
-		# with open('../data/lines.txt', 'r') as f:
-		# 	lines = f.readlines()
-		#
-		# with open('../data/generated.txt', 'w') as f:
-		# 	print('for those image below cannot be recognised:')
-		# 	for line in lines:
-		# 		if line[0] == '#' or line.split(' ')[1] != 'ok':
-		# 			continue
-		# 		image_name = line.split(' ')[0].split('-')[0]
-		# 		line_name = line.split(' ')[0].split('.')[0]
-		# 		word_names = os.listdir(FilePaths.fnInferDir + '/' + image_name + '/' + line_name)
-		# 		line_recognition = []  # 存放识别文本
-		# 		for i, word_name in enumerate(word_names):
-		# 			if word_name == 'summary.png' or word_name == '.DS_Store':
-		# 				continue
-		# 			word_path = FilePaths.fnInferDir + '/' + image_name + '/' + line_name + '/' + str(i-1) + '.png'
-		# 			try:
-		# 				recognition = infer(model, word_path)
-		# 			except ValueError:   # 无法识别
-		# 				print(line_name)
-		# 			line_recognition.append(recognition)
-		# 			if i == len(word_names)-2:
-		# 				break
-		# 		f.write(line_name + '.png ')
-		# 		f.write('|'.join(line_recognition) + '\n')
+		"""recognise all BGS segmented text-lines"""
+		with open('../../data/lines-v2.txt', 'r') as f:
+			lines = f.readlines()  # 获取标签文本行
+		with open('../../data/wordHTR-prediction-beamsearch.txt', 'w') as f:  # 写入文件
+			print('for those image below cannot be recognised:')
+			for line in lines:
+				if line[0] == '#':
+					continue
+				image_name = line.split(' ')[0].split('-')[0]
+				line_name = line.split(' ')[0].split('.')[0]
+				if line.split()[2] != 'handwritten':  # 仅识别手写文本
+					f.write(line_name + '.png '+ '\n')
+					continue
+				word_names = os.listdir(FilePaths.fnInferDir + '/' + image_name + '/' + line_name)
+				line_recognition = []  # 存放识别文本
+				fileNumbers = len(word_names)  # 词分割图片数
+				for wordIndex in range(fileNumbers-1):
+					word_path = FilePaths.fnInferDir + '/' + image_name + '/' + line_name + '/' + str(wordIndex) + '.png'
+					try:
+						recognition = infer(model, word_path)
+					except ValueError:   # 无法识别
+						print(line_name + '/' + str(wordIndex) + '.png')
+					line_recognition.append(recognition)
+				f.write(line_name + '.png ')
+				f.write('|'.join(line_recognition) + '\n')
 
 
 
 
 if __name__ == '__main__':
 	main()
-	image = cv2.imread(FilePaths.fnInfer)
-	cv2.imshow('test', image)
-	cv2.waitKey(0)
 

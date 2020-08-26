@@ -108,7 +108,7 @@ if __name__ == '__main__':
             path = FilePaths.line_seg_dir + '/' + imageName
             files = os.listdir(path)
             # print(files)
-            savePath = '../../data/preprocessed/' + imageName
+            savePath = '../../data/line-segment-preprocessed/' + imageName
             if not os.path.exists(savePath):
                 os.mkdir(savePath)
             for file in files:

@@ -5,6 +5,7 @@ import torch
 import torch.optim as optim
 import timeit
 from network import device, optimizer, model, criterion
+from visualiseFilters import visualise_filter
 
 """train"""
 
@@ -70,16 +71,18 @@ if __name__ == '__main__':
     if torch.cuda.is_available() is False:
         gpu_train_time = timeit.timeit(
             "train_model_epochs(num_epochs, gpu=False)",
-            setup="num_epochs=100",
+            setup="num_epochs=10",
             number=1,
             globals=globals(),
         )
     else:
         gpu_train_time = timeit.timeit(
             "train_model_epochs(num_epochs, gpu=True)",
-            setup="num_epochs=100",
+            setup="num_epochs=10",
             number=1,
             globals=globals(),
         )
     # 保存模型
     torch.save(model, FilePaths.savedModel)
+    visualise_filter(model.conv1)  
+

@@ -36,9 +36,17 @@ class FilePaths:
     root_dir = '../../data/pre-classifier-data/'  # 训练数据
     class_names = ['digital', 'handwritten', 'printed']
     # test_dir = '/Users/zzmacbookpro/Desktop/BGS-data-copy/preprocessed/3783_10005091'  # 单个测试数据
+    # 预处理与否
     # test_dir = '../../data/line-segment/'
     test_dir = '../../data/preprocessed/'
-    savedModel = '../../models/pre-classifier/pre-classifier-model.pt'
+    # 不同的模型
+    # savedModel = '../../models/pre-classifier/pre-classifier-model.pt'           # 101 - pretrained
+    # savedModel = '../../models/pre-classifier/ResNet-101-without-pretrained.pt'  # 101 - without pretrained
+    # savedModel = '../../models/pre-classifier/ResNet-50-with-pretrained.pt'      # 50  - pretrained
+    # savedModel = '../../models/pre-classifier/ResNet-50-without-pretrained.pt'   # 50  - without pretrained
+    savedModel = '../../models/pre-classifier/vgg-19-with-pretrained.pt'         # 19 - pretrained
+    # savedModel = '../../models/pre-classifier/vgg-19-without-pretrained.pt'      # 19 - without pretrained
+
 
 
 def get_meta(root_dir, dirs):

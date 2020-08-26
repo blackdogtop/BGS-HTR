@@ -9,9 +9,13 @@ import os
 
 class SavedPath:
     savedRootPath = '../../data/'
-    # resnet101Pretrained = savedRootPath + 'preclassifier-prediction.txt'
-    resnet101Pretrained = savedRootPath + 'preclassifier-prediction-preprocessed.txt'
-    resnet101PretrainedLabel = '# preclassifier - ResNet 101 pretrained prediction on BGS text-lines dataset'
+    resnet101Pretrained =        savedRootPath + 'preclassifier-prediction.txt'
+    resnet101WithoutPretrained = savedRootPath + 'preclassifier-prediction-101.txt'
+    resnet50Pretrained =         savedRootPath + 'preclassifier-prediction-50-pretrained.txt'
+    resnet50WithoutPretrained =  savedRootPath + 'preclassifier-prediction-50.txt'
+    vgg19Pretrained =            savedRootPath + 'preclassifier-prediction-19-pretrained.txt'
+    vgg19WithoutPretrained =     savedRootPath + 'preclassifier-prediction-19.txt'
+
 
 
 def sortDictKey(dict):
@@ -50,7 +54,7 @@ if __name__ == '__main__':
     sortedPreclassify = sortDictKey(predictedResults)  # 根据文件名排序
     # print(sortedPreclassify)
     # 写入txt文件
-    with open(SavedPath.resnet101Pretrained, 'w') as f:
+    with open(SavedPath.vgg19Pretrained, 'w') as f:
         for i, predictedLine in enumerate(sortedPreclassify):
             segmentName = predictedLine[0]
             predict = predictedLine[1]

@@ -12,16 +12,15 @@ from DataLoader import Batch
 from Model import Model, DecoderType
 from SamplePreprocessor import preprocess
 
-
 # constants like filepaths
 class Constants:
 	"filenames and paths to data"
 	fnCharList = '../../models/TextWordHTR/charList.txt'
-	fnAnalyze = '../../data/TextWordHTR/analyze.png'
+	fnAnalyze = '../../data/TextWordHTR/0.png'
 	fnPixelRelevance = '../../data/TextWordHTR/pixelRelevance.npy'
 	fnTranslationInvariance = '../../data/TextWordHTR/translationInvariance.npy'
 	fnTranslationInvarianceTexts = '../../data/TextWordHTR/translationInvarianceTexts.pickle'
-	gtText = 'are'
+	gtText = 'This'
 	distribution = 'histogram'  # 'histogram' or 'uniform'
 
 

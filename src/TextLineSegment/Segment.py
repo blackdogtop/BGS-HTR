@@ -13,6 +13,8 @@ class FilePaths:
     original_dir = data_dir + 'BGS-records'   # 原图路径
     line_seg_dir = data_dir + 'line-segment'  # 行分割路径
     word_seg_dir = data_dir + 'word-segment'  # 词分割路径
+    # line_seg_dir = data_dir + 'line-segment-preprocessed'  # 行分割路径
+    # word_seg_dir = data_dir + 'word-segment-preprocessed'  # 词分割路径
 
 
 def main():

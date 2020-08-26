@@ -10,9 +10,9 @@
 #
 #     	ok              	-> result of line segmentation
 #                            		ok: line is correctly segmented
-#                            		err: segmentation of line has one or more errors
-#					blank: the image has no content
-#					notSure: not sure about the ground truth label
+#                            		err: segmentation has multiple text-lines
+#					blank: the segmentation has no content
+#					notSure: cannot read the segmentation
 #
 #	handwritten		-> type of text in the segmentation
 #					handwritten, printed, digital or none

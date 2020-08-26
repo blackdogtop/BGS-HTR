@@ -1,10 +1,19 @@
 
-"""compare generated prediction file with ground truth labels file"""
+"""pre-classifier evaluation - compare generated prediction file with ground truth labels file"""
 
 class FilePaths:
     labelledFile = '../../data/lines-v2.txt'
-    # preclassifyFile = '../../data/preclassifier-prediction.txt'
-    preclassifyFile = '../../data/preclassifier-prediction-preprocessed.txt'
+    preclassifyFile = '../../data/pre-classifier-prediction/preclassifier-prediction.txt'
+    preclassify101WithoutPretrained = '../../data/pre-classifier-prediction/preclassifier-prediction-101.txt'
+    preclassify50WithPretrained = '../../data/pre-classifier-prediction/preclassifier-prediction-50-pretrained.txt'
+    preclassify50WithoutPretrained = '../../data/pre-classifier-prediction/preclassifier-prediction-50.txt'
+    preclassify19WithPretrained = '../../data/pre-classifier-prediction/preclassifier-prediction-19-pretrained.txt'
+    preclassify19WithoutPretrained = '../../data/pre-classifier-prediction/preclassifier-prediction-19.txt'
+    # preprocessed
+    preclassify50WithPretrainedPreprocessed = '../../data/pre-classifier-prediction/preclassifier-prediction-50-pretrained-preprocessed.txt'
+    preclassify101WithPretrainedPreprocessed = '../../data/pre-classifier-prediction/preclassifier-prediction-101-pretrained-preprocessed.txt'
+    preclassify19WithPretrainedPreprocessed = '../../data/pre-classifier-prediction/preclassifier-prediction-19-pretrained-preprocessed.txt'
+
 
 def sortDictKey(dict):
     """字典根据key重新排序"""
@@ -65,4 +74,4 @@ def comparePreclassify(file1, file2):
     print('Correctly predict distribution: handwritten text - {}, handwritten digit - {}, printed text - {}'.format(handwritten,digital,printed))
 
 if __name__ == '__main__':
-    comparePreclassify(FilePaths.preclassifyFile, FilePaths.labelledFile)
+    comparePreclassify(FilePaths.preclassify19WithPretrainedPreprocessed, FilePaths.labelledFile)

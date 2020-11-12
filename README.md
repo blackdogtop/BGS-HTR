@@ -1,40 +1,19 @@
-# BGS-HTR
+# Interpretation of British Geological Survey Borehole records
+This repository contains all of the project code and outputs. It does *not* contain any of the BGS borehole records belonging to the dataset used in this research.
 
-
-# 编译环境
-操作系统 `macOS 10.15.5`, Python版本`3.7`
-部分代码运行于`colab`
-
-# 目前进度
-
->+ 18.05.2020 完成爬虫部分代码
-
->+ 15.06.2020 完成图片旋转
-
->+ 21.06.2020 完成图片分类
-
->+ 23.06.2020 完成图片分割（单元格分割）
-
->+ 09.07.2020 完成行分割（所有分割工作结束）
-
->+ 14.07.2020 提供标签
-
->+ 15.07.2020 word recognition
-
->+ 19.07.2020 校对标签
-
->+ 27.07.2020 text-line recognition
-
->+ 28.07.2020 pre-classifier
-
-***
-
-# 按功能部分讲解
-
-### 下载BGS scanned records
-> `downloader.py`
-* 根据url下载图片
-* 获取某个BGS id下所有的图片(一个BGS id可能包含多个图片)
-* 根据url获取某页下所有的图片
-* 获取所有的区域(grid)的名字
-* 获取某个区域(grid)的所有图片
+## Folders
+```
+MSc-project-ml18y27f
+│   data - all saved files
+│   └───lines-v2.txt                - provided ground truth labels
+│   └───pre-classifier-predictions  - saved pre-classifier-predictions
+│   └───HTR-predictions             - saved HTR predictions
+│
+└───src  - all project code
+│   └───downloader.py               - BGS borehole records download
+│   └───TextLineSegment             - text-lines segmentation
+│   └───Pre-classifier              - segmentations classification
+│   └───TextWordHTR                 - handwritten text word recognition
+│   └───TextLineSegment             - handwritten text line recognition
+│   └───Evaluation                  - accuracy calculation
+```

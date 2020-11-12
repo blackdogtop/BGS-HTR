@@ -3,7 +3,7 @@ This repository contains all of the project code and outputs. It does *not* cont
 
 ## Folders
 ```
-MSc-project-ml18y27f
+MSc-project
 │   data - all saved files
 │   └───lines-v2.txt                - provided ground truth labels
 │   └───pre-classifier-predictions  - saved pre-classifier-predictions
